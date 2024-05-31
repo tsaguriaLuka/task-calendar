@@ -1,39 +1,12 @@
 <script setup lang="ts">
-import {
-  format,
-  getYear,
-  getMonth,
-  getDate
-} from "date-fns";
+import { format } from "date-fns";
+import { useEvents } from "~/composables/useEvents";
 
-const props = withDefaults(defineProps<{ weekDays: [], events: {title: string, minutesStart: string, duration: string}[] }>(), {
-  events: () => []
+const props = withDefaults(defineProps<{ weekDays: [] }>(), {
+  weekDays: () => []
 });
 
-const eventsFilteredWeek = (date) => {
-  return props.events.filter((event) => {
-    const eventStartDate = new Date(event.eventStart);
-    return (
-        getYear(eventStartDate) === getYear(date) &&
-        getMonth(eventStartDate) === getMonth(date) &&
-        getDate(eventStartDate) === getDate(date)
-    );
-  }).map(event => {
-    const eventStartDate = new Date(event.eventStart);
-    const eventEndDate = new Date(event.eventEnd);
-
-    const minutesStart = eventStartDate.getHours() * 60 + eventStartDate.getMinutes();
-    const minutesEnd = eventEndDate.getHours() * 60 + eventEndDate.getMinutes();
-
-    const duration = minutesEnd - minutesStart;
-
-    return {
-      ...event,
-      minutesStart,
-      duration
-    };
-  });
-}
+const events = useEvents().weekEvents();
 </script>
 
 <template>
@@ -49,7 +22,7 @@ const eventsFilteredWeek = (date) => {
       </div>
 
       <div
-        v-for="(event, index) in eventsFilteredWeek(day)"
+        v-for="(event, index) in events[format(day, 'yyyy/MM/dd')]"
         :key="index"
         class="calendar__weeks-item-container"
         :style="{

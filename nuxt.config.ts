@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@vueuse/nuxt',
+    '@pinia/nuxt',
   ],
   css: [
     '@fontsource-variable/roboto-flex/index.css',

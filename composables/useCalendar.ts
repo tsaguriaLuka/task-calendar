@@ -34,10 +34,6 @@ export function useCalendar() {
   })
 
   const dayHours = computed(() => {
-    // const start = startOfDay(new Date(year.value, month.value - 1, day.value))
-    // const end = endOfDay(new Date(year.value, month.value - 1, day.value))
-    //
-    // return eachHourOfInterval({ start, end })
     const start = startOfDay(new Date(year.value, month.value - 1, day.value));
     const end = endOfDay(new Date(year.value, month.value - 1, day.value));
 
@@ -58,7 +54,7 @@ export function useCalendar() {
 
     if (
       curType.value === 'week' &&
-      (firstDayOfWeek.getMonth() !== lastDayOfWeek.getMonth())
+      (firstDayOfWeek?.getMonth() !== lastDayOfWeek?.getMonth())
     ) {
       return `${ format(firstDayOfWeek, 'MMMM') } - ${ format(lastDayOfWeek, 'MMMM') }, ${ year.value }`;
     }

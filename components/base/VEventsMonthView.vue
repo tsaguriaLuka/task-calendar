@@ -1,91 +1,69 @@
 <script setup lang="ts">
-import { format, parse, getYear, getMonth, getDate } from "date-fns";
+import { format } from "date-fns";
+import { useEvents } from "~/composables/useEvents";
 
-const props = withDefaults(defineProps<{ weekDays: [], events: {title: string, minutesStart: string, duration: string}[] }>(), {
-  events: () => []
+const props = withDefaults(defineProps<{ monthDays: [] }>(), {
+  monthDays: () => []
 });
 
-const eventsFilteredWeek = (date) => {
-  return props.events.filter((event) => {
-    const eventStartDate = new Date(event.eventStart);
-    return (
-        getYear(eventStartDate) === getYear(date) &&
-        getMonth(eventStartDate) === getMonth(date) &&
-        getDate(eventStartDate) === getDate(date)
-    );
-  }).map(event => {
-    const eventStartDate = new Date(event.eventStart);
-    const eventEndDate = new Date(event.eventEnd);
+const events = useEvents().weekEvents();
 
-    const minutesStart = eventStartDate.getHours() * 60 + eventStartDate.getMinutes();
-    const minutesEnd = eventEndDate.getHours() * 60 + eventEndDate.getMinutes();
-
-    const duration = minutesEnd - minutesStart;
-
-    return {
-      ...event,
-      minutesStart,
-      duration
-    };
-  });
-}
+console.log(events)
 </script>
 
 <template>
-  <div class="calendar__weeks">
-    <div class="calendar__weeks-item"
-       v-for="day in weekDays"
+  <div class="calendar__months">
+    <div class="calendar__months-item"
+       v-for="day in monthDays"
     >
-      <div class="calendar__weeks-item-header">
-        <div>{{ format(day, 'EE dd') }}</div>
+      <div>
+        {{ format(day, 'EE dd') }}
       </div>
 
-      <div
-        class="calendar__weeks-item-event"
-        v-for="(event, index) in eventsFilteredWeek(day)"
-        :key="index"
-        :style="{ '--top': `${ event.minutesStart }px`, '--height': `${ event.duration }px` }"
+      <div class="calendar__months-item-event-container"
+          v-for="(event, index) in events[format(day, 'yyyy/MM/dd')]"
+          :key="index"
       >
-        {{ event.title }}
+        <div
+          class="calendar__months-item-event"
+          :style="{
+            '--top': `${ event.minutesStart }px`,
+            '--height': `${ event.duration }px`
+          }"
+        >
+          {{ event.title }}
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.calendar__weeks {
-  display: flex;
-  justify-content: space-between;
+.calendar__months {
+  display: grid;
+  position: relative;
+  grid-template-columns: repeat(7, 1fr);
   width: 100%;
+  gap: 4px;
 
   &-item {
     position: relative;
     width: 100%;
-    overflow: hidden;
-
-    &-header {
-      display: flex;
-      justify-content: space-between;
-    }
 
     &-event {
-      position: absolute;
-      width: fit-content;
-      text-overflow: ellipsis;
-      background-color: var(--primary);
-      height: var(--height);
-      white-space: nowrap;
-      left: 0;
-      padding: 4px 8px;
-      border-radius: 8px;
-      top: var(--top);
-      margin: 0 8px;
-      min-height: 28px;
-      font-size: 0.8rem;
-      cursor: pointer;
+      &-container {
+        cursor: pointer;
+        background-color: var(--primary);
+        height: 40px;
+        white-space: nowrap;
+        overflow: scroll;
+        width: 100%;
+        left: 0;
+        padding: 4px 8px;
+        border-radius: 8px;
+        min-height: 28px;
+      }
     }
   }
-
 }
-
 </style>

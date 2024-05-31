@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ dayHours: String[] }>(), {
+const props = withDefaults(defineProps<{ dayHours: String[], curType: string }>(), {
   dayHours: () => []
 });
 </script>
@@ -8,9 +8,10 @@ const props = withDefaults(defineProps<{ dayHours: String[] }>(), {
    <div class="calendar-events">
      <div class="calendar-events-hours">
        <div
-           class="calendar-events-hour"
-           v-for="(hour, index) in dayHours"
-           :key="index"
+         class="calendar-events-hour"
+         v-if="curType !== 'month'"
+         v-for="(hour, index) in dayHours"
+         :key="index"
        >
          {{ hour }}
        </div>
