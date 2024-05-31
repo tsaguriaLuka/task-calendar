@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { useCalendar } from '~/composables/useCalendar';
 
 import { storeToRefs } from 'pinia';
-import { useEventsStore } from '~/store/events';
+import { useEventsStore } from '~/stores/events';
 
 type Event = {
   title: string
@@ -11,6 +11,7 @@ type Event = {
   description: string
   minutesStart: number
   duration: number
+  id: string
 }
 
 type EventsByDate = {
@@ -27,7 +28,7 @@ export function useEvents () {
   } = useCalendar()
 
   const dayEvents = computed(() => {
-    return events.value?.filter((event) => {
+    return events.value?.filter((event: Event) => {
       const eventStartDate = new Date(event.eventStart)
 
       return (
@@ -35,7 +36,7 @@ export function useEvents () {
         eventStartDate.getMonth() + 1 === month.value &&
         eventStartDate.getDate() === day.value
       );
-    }).map(event => {
+    }).map((event: Event) => {
       const eventStartDate = new Date(event.eventStart)
       const eventEndDate = new Date(event.eventEnd)
 
@@ -55,7 +56,7 @@ export function useEvents () {
   const weekEvents = () => {
     const eventsByDate: Ref<EventsByDate> = ref({})
 
-    events.value?.forEach((event) => {
+    events.value?.forEach((event: Event) => {
       const eventStartDate: Date = new Date(event.eventStart);
       const formattedDate: string = format(eventStartDate, 'yyyy/MM/dd')
 

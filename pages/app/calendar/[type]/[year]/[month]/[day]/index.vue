@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { setTargetEl } from "~/composables/mouse-move";
-import {format} from "date-fns";
+import { format, parse } from "date-fns";
+import { useEventsStore } from "~/stores/events";
+import { storeToRefs } from "pinia";
 
 const pageTitle = useState('page-title')
 
-const target = ref<HTMLElement | null>(null)
-
 onMounted(() => {
   pageTitle.value = 'My App'
-
-  if (target.value) setTargetEl(target.value)
 })
+
+await useEventsStore().fetchedEvents()
 
 const {
   curType,
@@ -20,44 +19,162 @@ const {
   curMonthName,
   month,
   day,
-  dateLabel
+  year,
+  dateLabel,
 } = useCalendar();
+
+const createEventForm = ref(false)
+const { eventFormData } = storeToRefs(useEventsStore())
+
+const date = ref<string>(format(new Date(), 'yyyy-MM-dd'))
+
+const startMinutesDate = ref<string>()
+const endMinutesDate = ref<string>()
+
+const createEventModal = () => {
+  const startTime = format(Date.now(), 'HH:mm');
+  const endTime = format(Date.now() + 15 * 60 * 1000, 'HH:mm');
+
+  startMinutesDate.value = startTime;
+  endMinutesDate.value = endTime;
+
+  createEventForm.value = true;
+}
+
+const submitEventCreate = async () => {
+  if (
+    !date.value ||
+    !startMinutesDate.value ||
+    !endMinutesDate.value
+  ) return;
+
+  const getParsedDate = (date: string, mins: string) => {
+    return parse(`${ date }T${ mins }`, 'yyyy-MM-dd\'T\'HH:mm', new Date());
+  }
+
+  const eventStartDate = getParsedDate(date.value, startMinutesDate.value)
+  const eventEndDate = getParsedDate(date.value, endMinutesDate.value)
+
+  const eventStartMillis = eventStartDate.getTime();
+  const eventEndMillis = eventEndDate.getTime();
+
+  eventFormData.value.eventStart = eventStartMillis
+  eventFormData.value.eventEnd = eventEndMillis
+
+  await useEventsStore().createEvent()
+}
 </script>
 
 <template>
   <div class="calendar">
-    <VDateNavigation
+    <VModal
+      :open="createEventForm"
+      @close="createEventForm = false"
+    >
+      <template #content>
+        <VField>
+          <VInput
+            type="text"
+            placeholder="title"
+            autocomplete="name"
+            v-model="eventFormData.title"
+          />
+        </VField>
+
+        <VField>
+          <VInput
+            type="text"
+            placeholder="description"
+            autocomplete="name"
+            v-model="eventFormData.description"
+          />
+        </VField>
+
+        <VField>
+          <label for="">Date</label>
+
+          <VInput
+            type="date"
+            placeholder="description"
+            v-model="date"
+          />
+        </VField>
+
+        <VField>
+          <label>Time start</label>
+
+          <VInput
+              type="time"
+              placeholder="start"
+              v-model="startMinutesDate"
+          />
+        </VField>
+
+        <VField>
+          <label>Time end</label>
+
+          <VInput
+            type="time"
+            placeholder="end"
+            v-model="endMinutesDate"
+          />
+        </VField>
+
+        <VButton
+          fullwidth
+          color="primary"
+          @click="submitEventCreate()"
+        >
+          Create
+        </VButton>
+      </template>
+    </VModal>
+
+    <VCalendarHeader
       :cur-month-name="curMonthName"
       :cur-type="curType"
       :date-label="dateLabel"
       :month
       :day
+      :year
+      @create-event-modal="createEventModal()"
     />
 
-    <VCard>
+    <VCard
+      :style="{
+        '--card-height': curType === 'month' ? '78vh' : '72vh',
+        '--events-height': curType === 'month' ? 'fit-content' : '1440px'
+      }"
+    >
       <div class="calendar-wrapper">
         <div
           class="calendar-days"
           v-if="curType === 'week'"
         >
-          <div v-for="day in weekDays">{{ format(day, 'EE dd') }}</div>
+          <div
+            v-for="day in weekDays"
+          >
+            {{ format(day, 'EE dd') }}
+          </div>
         </div>
 
-        <div class="calendar-container" ref="target">
+        <div
+          class="calendar-container"
+        >
           <VCalendarEvents
             :dayHours="dayHours"
             :cur-type="curType"
           >
-            <VEventsDayView
+            <VCalendarDayView
               v-if="curType === 'day'"
             />
 
-            <VEventsWeekView
+            <VCalendarWeekView
               v-if="curType === 'week'"
               :week-days="weekDays"
             />
 
-            <VEventsMonthView
+            <VCalendarMonthView
               v-if="curType === 'month'"
               :month-days="monthDays"
             />
@@ -71,7 +188,7 @@ const {
 <style scoped lang="scss">
 .calendar {
   .r-card {
-    max-height: 72vh;
+    max-height: var(--card-height);
     overflow: scroll;
   }
 
@@ -82,15 +199,6 @@ const {
     position: sticky;
     top: 0;
     z-index: 99;
-  }
-
-  &-container {
-    display: flex;
-    gap: 12px;
-    position: relative;
-    width: 100%;
-    height: 1440px;
-    overflow: auto;
   }
 }
 </style>

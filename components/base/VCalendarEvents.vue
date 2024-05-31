@@ -31,7 +31,7 @@ withDefaults(defineProps<{
   gap: 12px;
   position: relative;
   width: 100%;
-  height: 1440px;
+  height: var(--events-height);
   overflow: auto;
 
   &-hours {

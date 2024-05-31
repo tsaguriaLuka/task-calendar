@@ -61,6 +61,13 @@ const getUrl = (value: string, date: Date) => {
       </div>
     </VField>
 
+    <VButton
+      color="primary"
+      @click="$emit('createEventModal')"
+    >
+      Create Event
+    </VButton>
+
     <div class="date-navigator__controls">
       <VIconBox
         size="small"
