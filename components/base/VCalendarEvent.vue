@@ -6,8 +6,8 @@ withDefaults(defineProps<{
     eventStart: number,
     eventEnd: number
   } | null,
-  height: number,
-  top: number | null
+  height?: number,
+  top?: number | null
 }>(), {
   event: null,
   height: 20,
