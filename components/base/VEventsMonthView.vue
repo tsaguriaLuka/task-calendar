@@ -2,7 +2,7 @@
 import { format } from "date-fns";
 import { useEvents } from "~/composables/useEvents";
 
-const props = withDefaults(defineProps<{ monthDays: [] }>(), {
+withDefaults(defineProps<{ monthDays: [] }>(), {
   monthDays: () => []
 });
 

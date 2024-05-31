@@ -1,6 +1,10 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ dayHours: String[], curType: string }>(), {
-  dayHours: () => []
+withDefaults(defineProps<{
+  dayHours: String[],
+  curType: string
+}>(), {
+  dayHours: () => [],
+  curType: 'day'
 });
 </script>
 

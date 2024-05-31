@@ -2,7 +2,7 @@
 import { format } from "date-fns";
 import { useEvents } from "~/composables/useEvents";
 
-const props = withDefaults(defineProps<{ weekDays: [] }>(), {
+withDefaults(defineProps<{ weekDays: [] }>(), {
   weekDays: () => []
 });
 
@@ -17,10 +17,6 @@ const events = useEvents().weekEvents();
       class="calendar__weeks-item"
       v-for="day in weekDays"
     >
-      <div class="calendar__weeks-item-header">
-        <div>{{ format(day, 'EE dd') }}</div>
-      </div>
-
       <div
         v-for="(event, index) in events[format(day, 'yyyy/MM/dd')]"
         :key="index"

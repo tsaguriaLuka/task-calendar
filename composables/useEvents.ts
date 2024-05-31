@@ -1,12 +1,24 @@
-import { computed } from 'vue';
+import { format } from "date-fns";
+import { useCalendar } from '~/composables/useCalendar';
+
 import { storeToRefs } from 'pinia';
 import { useEventsStore } from '~/store/events';
-import { useCalendar } from '~/composables/useCalendar';
-import { format } from "date-fns";
 
+type Event = {
+  title: string
+  eventStart: string
+  eventEnd: string
+  description: string
+  minutesStart: number
+  duration: number
+}
+
+type EventsByDate = {
+  [date: string]: Event[]
+}
 
 export function useEvents () {
-  const { events } = storeToRefs(useEventsStore());
+  const { events } = storeToRefs(useEventsStore())
 
   const {
     year,
@@ -16,7 +28,7 @@ export function useEvents () {
 
   const dayEvents = computed(() => {
     return events.value?.filter((event) => {
-      const eventStartDate = new Date(event.eventStart);
+      const eventStartDate = new Date(event.eventStart)
 
       return (
         eventStartDate.getFullYear() === year.value &&
@@ -24,15 +36,13 @@ export function useEvents () {
         eventStartDate.getDate() === day.value
       );
     }).map(event => {
-      const eventStartDate = new Date(event.eventStart);
-      const eventEndDate = new Date(event.eventEnd);
+      const eventStartDate = new Date(event.eventStart)
+      const eventEndDate = new Date(event.eventEnd)
 
-      const minutesStart = eventStartDate.getHours() * 60 + eventStartDate.getMinutes();
-      const minutesEnd = eventEndDate.getHours() * 60 + eventEndDate.getMinutes();
+      const minutesStart = eventStartDate.getHours() * 60 + eventStartDate.getMinutes()
+      const minutesEnd = eventEndDate.getHours() * 60 + eventEndDate.getMinutes()
 
-      const duration = minutesEnd - minutesStart;
-
-      console.log(event)
+      const duration = minutesEnd - minutesStart
 
       return {
         ...event,
@@ -43,29 +53,29 @@ export function useEvents () {
   });
 
   const weekEvents = () => {
-    const eventsByDate: object = {};
+    const eventsByDate: Ref<EventsByDate> = ref({})
 
     events.value?.forEach((event) => {
       const eventStartDate: Date = new Date(event.eventStart);
-      const formattedDate: string = format(eventStartDate, 'yyyy/MM/dd');
+      const formattedDate: string = format(eventStartDate, 'yyyy/MM/dd')
 
-      if (!eventsByDate[formattedDate]) {
-        eventsByDate[formattedDate] = [];
+      if (!eventsByDate.value[formattedDate]) {
+        eventsByDate.value[formattedDate] = []
       }
 
       const eventEndDate = new Date(event.eventEnd);
-      const minutesStart = eventStartDate.getHours() * 60 + eventStartDate.getMinutes();
-      const minutesEnd = eventEndDate.getHours() * 60 + eventEndDate.getMinutes();
-      const duration = minutesEnd - minutesStart;
+      const minutesStart = eventStartDate.getHours() * 60 + eventStartDate.getMinutes()
+      const minutesEnd = eventEndDate.getHours() * 60 + eventEndDate.getMinutes()
+      const duration = minutesEnd - minutesStart
 
-      eventsByDate[formattedDate].push({
+      eventsByDate.value[formattedDate].push({
         ...event,
         minutesStart,
         duration
       });
     });
 
-    return eventsByDate;
+    return eventsByDate
   };
 
   return {
