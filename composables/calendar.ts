@@ -8,7 +8,6 @@ import {
   startOfDay,
   startOfMonth,
   startOfWeek,
-  getHours
 } from 'date-fns';
 
 export function useCalendar() {

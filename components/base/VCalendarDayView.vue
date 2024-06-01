@@ -3,7 +3,7 @@ import { storeToRefs } from "pinia";
 import { useEventsStore } from "~/stores/events";
 import { useMouseTracking } from "~/composables/mouse-move";
 import { useOnDragStart, useOnDrop } from "~/composables/events-drag-and-drop";
-import { useCalendar } from "~/composables/useCalendar";
+import { useCalendar } from "~/composables/calendar";
 
 const { dayEvents } = storeToRefs(useEventsStore())
 

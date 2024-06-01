@@ -1,13 +1,7 @@
 import { setMinutes } from "date-fns";
 import { useEventsStore } from "~/stores/events";
 
-interface IEvent {
-  title: string
-  eventStart: string
-  eventEnd: string
-  description: string
-  id: string
-}
+import type { IEvent } from "~/types/event.type";
 
 export const useOnDragStart = ($event: DragEvent, event: IEvent) => {
   if (!$event.dataTransfer) return
@@ -20,12 +14,12 @@ export const useOnDragStart = ($event: DragEvent, event: IEvent) => {
 export const useOnDrop = async ($event: DragEvent, day: string | number | Date, mins: number) => {
   if (!$event.dataTransfer) return;
 
-  const event = JSON.parse($event.dataTransfer.getData('event'));
+  const event: IEvent = JSON.parse($event.dataTransfer.getData('event'));
 
   const newEventStart = setMinutes(new Date(day), mins).getTime();
 
-  event.eventEnd = newEventStart + (event.eventEnd - event.eventStart)
-  event.eventStart = newEventStart
+  event.endTimestamp = newEventStart + (event.endTimestamp - event.startTimestamp)
+  event.startTimestamp = newEventStart
 
   await useEventsStore().updateEvent(event)
 }

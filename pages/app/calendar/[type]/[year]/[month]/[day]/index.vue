@@ -3,18 +3,17 @@ import { format, parse } from "date-fns";
 import { useEventsStore } from "~/stores/events";
 import { storeToRefs } from "pinia";
 import { setTargetEl } from "~/composables/mouse-move";
+import { useCalendar } from "~/composables/calendar";
 
-const pageTitle = useState('page-title')
-
-const targetContainer = ref<HTMLElement | null>(null)
+const pageTitle = useState('page-title');
+const targetContainer = ref<HTMLElement | null>(null);
 
 onMounted(() => {
-  pageTitle.value = 'My App'
+  pageTitle.value = 'My App';
+  if (targetContainer.value) setTargetEl(targetContainer.value);
+});
 
-  if (targetContainer.value) setTargetEl(targetContainer.value)
-})
-
-await useEventsStore().fetchEvents()
+await useEventsStore().fetchEvents();
 
 const {
   curType,
@@ -26,55 +25,46 @@ const {
   day,
   year,
   dateLabel,
-} = useCalendar();
+} = useCalendar()
 
-const createEventForm = ref(false)
-const { eventFormData } = storeToRefs(useEventsStore())
+const eventModal = ref(false);
+const { eventFormData } = storeToRefs(useEventsStore());
 
-const date = ref<string>(format(new Date(), 'yyyy-MM-dd'))
-
-const startMinutesDate = ref<string>()
-const endMinutesDate = ref<string>()
+const date = ref(format(new Date(), 'yyyy-MM-dd'));
+const startMinutesDate = ref<string>();
+const endMinutesDate = ref<string>();
 
 const createEventModal = () => {
-  const startTime = format(Date.now(), 'HH:mm');
-  const endTime = format(Date.now() + 15 * 60 * 1000, 'HH:mm');
-
-  startMinutesDate.value = startTime;
-  endMinutesDate.value = endTime;
-
-  createEventForm.value = true;
-}
+  const now = new Date();
+  startMinutesDate.value = format(now, 'HH:mm');
+  endMinutesDate.value = format(new Date(now.getTime() + 15 * 60 * 1000), 'HH:mm');
+  eventModal.value = true;
+};
 
 const submitEventCreate = async () => {
-  if (
-    !date.value ||
-    !startMinutesDate.value ||
-    !endMinutesDate.value
-  ) return;
+  if (!date.value || !startMinutesDate.value || !endMinutesDate.value) return;
 
-  const getParsedDate = (date: string, mins: string) => {
-    return parse(`${ date }T${ mins }`, 'yyyy-MM-dd\'T\'HH:mm', new Date());
-  }
+  const parseDateTime = (date: string, time: string) =>
+      parse(`${ date }T${ time }`, 'yyyy-MM-dd\'T\'HH:mm', new Date()).getTime();
 
-  const eventStartDate = getParsedDate(date.value, startMinutesDate.value)
-  const eventEndDate = getParsedDate(date.value, endMinutesDate.value)
+  Object.assign(eventFormData.value, {
+    startTimestamp: parseDateTime(date.value, startMinutesDate.value),
+    endTimestamp: parseDateTime(date.value, endMinutesDate.value)
+  });
 
-  const eventStartMillis = eventStartDate.getTime();
-  const eventEndMillis = eventEndDate.getTime();
 
-  eventFormData.value.eventStart = eventStartMillis
-  eventFormData.value.eventEnd = eventEndMillis
+  await useEventsStore().createEvent();
 
-  await useEventsStore().createEvent()
-}
+  eventModal.value = false
+};
 </script>
+
 
 <template>
   <div class="calendar">
     <VModal
-      :open="createEventForm"
-      @close="createEventForm = false"
+      :open="eventModal"
+      @close="eventModal = false"
       title="Create Event"
     >
       <template #content>

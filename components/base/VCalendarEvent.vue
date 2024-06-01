@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { useEventsStore } from "~/stores/events";
 import { storeToRefs } from "pinia";
-import {format, parse} from "date-fns";
-
+import { format, parse } from "date-fns";
 
 const props = withDefaults(defineProps<{
   event: {
     title: string
     description: string
-    eventStart: number
-    eventEnd: number
+    startTimestamp: number
+    endTimestamp: number
     id: string
   }
   height?: number
@@ -17,63 +16,49 @@ const props = withDefaults(defineProps<{
 }>(), {
   height: 20,
   top: null
-})
+});
 
-const eventModal = ref(false)
+const isEventModalVisible = ref(false);
+const { eventFormData, eventResponse } = storeToRefs(useEventsStore());
 
-const {
-  eventFormData,
-  eventResponse
-} = storeToRefs(useEventsStore())
-
-const date = ref<string>(format(new Date(), 'yyyy-MM-dd'))
-
-const startMinutesDate = ref<string>()
-const endMinutesDate = ref<string>()
+const selectedDate = ref(format(new Date(), 'yyyy-MM-dd'));
+const startTime = ref<string>();
+const endTime = ref<string>();
 
 const openEventInfo = async () => {
-  await useEventsStore().fetchEventById(props.event.id)
+  const eventsStore = useEventsStore();
+  await eventsStore.fetchEventById(props.event.id);
 
-  if (!eventResponse.value) return
+  if (!eventResponse.value) return;
 
-  eventFormData.value.title = eventResponse.value?.title || ''
-  eventFormData.value.description = eventResponse.value?.description || ''
-  date.value = format(new Date(eventResponse.value?.eventStart), 'yyyy-MM-dd')
+  const { title, description, startTimestamp, endTimestamp } = eventResponse.value;
+  Object.assign(eventFormData.value, { title, description });
 
-  const startTime = format(new Date(eventResponse.value?.eventStart), 'HH:mm');
-  const endTime = format(new Date(eventResponse.value?.eventEnd), 'HH:mm');
+  selectedDate.value = format(new Date(startTimestamp), 'yyyy-MM-dd');
+  startTime.value = format(new Date(startTimestamp), 'HH:mm');
+  endTime.value = format(new Date(endTimestamp), 'HH:mm');
 
-  startMinutesDate.value = startTime;
-  endMinutesDate.value = endTime;
+  isEventModalVisible.value = true;
+};
 
-  eventModal.value = true
-}
+const updateEventInfo = async () => {
+  if (!selectedDate.value || !startTime.value || !endTime.value) return;
 
-const submitEventUpdate = async () => {
-  if (
-    !date.value ||
-    !startMinutesDate.value ||
-    !endMinutesDate.value
-  ) return;
+  const parseDateTime = (date: string, time: string) =>
+      parse(`${date}T${time}`, 'yyyy-MM-dd\'T\'HH:mm', new Date()).getTime();
 
-  const getParsedDate = (date: string, mins: string) => {
-    return parse(`${ date }T${ mins }`, 'yyyy-MM-dd\'T\'HH:mm', new Date());
-  }
-
-  const eventStartDate = getParsedDate(date.value, startMinutesDate.value)
-  const eventEndDate = getParsedDate(date.value, endMinutesDate.value)
-
-  const eventStartMillis = eventStartDate.getTime();
-  const eventEndMillis = eventEndDate.getTime();
-
-  eventFormData.value.eventStart = eventStartMillis
-  eventFormData.value.eventEnd = eventEndMillis
+  Object.assign(eventFormData.value, {
+    startTimestamp: parseDateTime(selectedDate.value, startTime.value),
+    endTimestamp: parseDateTime(selectedDate.value, endTime.value)
+  });
 
   await useEventsStore().updateEvent({
     id: props.event.id,
     ...eventFormData.value
-  })
-}
+  });
+
+  isEventModalVisible.value = false;
+};
 </script>
 
 <template>
@@ -91,8 +76,8 @@ const submitEventUpdate = async () => {
      </div>
 
      <VModal
-         :open="eventModal"
-         @close="eventModal = false"
+         :open="isEventModalVisible"
+         @close="isEventModalVisible = false"
          title="Event info"
      >
        <template #content>
@@ -115,12 +100,12 @@ const submitEventUpdate = async () => {
          </VField>
 
          <VField>
-           <label for="">Date</label>
+           <label>Date</label>
 
            <VInput
                type="date"
                placeholder="description"
-               v-model="date"
+               v-model="selectedDate"
            />
          </VField>
 
@@ -130,7 +115,7 @@ const submitEventUpdate = async () => {
            <VInput
                type="time"
                placeholder="start"
-               v-model="startMinutesDate"
+               v-model="startTime"
            />
          </VField>
 
@@ -140,14 +125,14 @@ const submitEventUpdate = async () => {
            <VInput
                type="time"
                placeholder="end"
-               v-model="endMinutesDate"
+               v-model="endTime"
            />
          </VField>
 
          <VButton
              fullwidth
              color="primary"
-             @click="submitEventUpdate()"
+             @click="updateEventInfo()"
          >
            Update
          </VButton>

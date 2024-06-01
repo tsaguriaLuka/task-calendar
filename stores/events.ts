@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { format } from "date-fns"
 
 import { tryCatch } from "~/utils/try-catch"
-import { useCalendar } from "~/composables/useCalendar"
+import { useCalendar } from "~/composables/calendar"
 
 import type { IEvent } from "~/types/event.type"
 
@@ -22,8 +22,8 @@ export const useEventsStore = defineStore('events', () => {
   const eventFormData = ref({
     title: '',
     description: '',
-    eventStart: 0,
-    eventEnd: 0
+    startTimestamp: 0,
+    endTimestamp: 0
   })
 
   const fetchEvents = async () => {
@@ -50,8 +50,8 @@ export const useEventsStore = defineStore('events', () => {
       body: {
         title: eventFormData.value.title,
         description: eventFormData.value.description,
-        eventStart: eventFormData.value.eventStart,
-        eventEnd: eventFormData.value.eventEnd
+        startTimestamp: eventFormData.value.startTimestamp,
+        endTimestamp: eventFormData.value.endTimestamp
       }
     }))
 
@@ -67,8 +67,8 @@ export const useEventsStore = defineStore('events', () => {
       body: {
         title: payload.title,
         description: payload.description,
-        eventStart: payload.eventStart,
-        eventEnd: payload.eventEnd
+        startTimestamp: payload.startTimestamp,
+        endTimestamp: payload.endTimestamp
       }
     }))
 
@@ -83,7 +83,7 @@ export const useEventsStore = defineStore('events', () => {
     } = useCalendar()
 
     return eventsResponse.value?.filter((event: IEvent) => {
-      const eventStartDate = new Date(event.eventStart)
+      const eventStartDate = new Date(event.startTimestamp)
 
       return (
         eventStartDate.getFullYear() === year.value &&
@@ -92,8 +92,8 @@ export const useEventsStore = defineStore('events', () => {
       )
 
     }).map((event: IEvent) => {
-      const eventStartDate = new Date(event.eventStart)
-      const eventEndDate = new Date(event.eventEnd)
+      const eventStartDate = new Date(event.startTimestamp)
+      const eventEndDate = new Date(event.endTimestamp)
 
       const minutesStart = eventStartDate.getHours() * 60 + eventStartDate.getMinutes()
       const minutesEnd = eventEndDate.getHours() * 60 + eventEndDate.getMinutes()
@@ -109,14 +109,14 @@ export const useEventsStore = defineStore('events', () => {
 
   const weekEvents = computed(() => {
     return eventsResponse.value.reduce((eventsByDate: EventsByDate, event) => {
-      const eventStartDate = new Date(event.eventStart)
+      const eventStartDate = new Date(event.startTimestamp)
       const formattedDate = format(eventStartDate, 'yyyy/MM/dd')
 
       if (!eventsByDate[formattedDate]) {
         eventsByDate[formattedDate] = []
       }
 
-      const eventEndDate = new Date(event.eventEnd)
+      const eventEndDate = new Date(event.endTimestamp)
       const minutesStart = eventStartDate.getHours() * 60 + eventStartDate.getMinutes()
       const minutesEnd = eventEndDate.getHours() * 60 + eventEndDate.getMinutes()
       const duration = minutesEnd - minutesStart

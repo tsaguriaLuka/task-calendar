@@ -1,7 +1,7 @@
 export interface IEvent {
   title: string;
-  eventStart: string;
-  eventEnd: string;
+  startTimestamp: number;
+  endTimestamp: number;
   description: string;
   id: string;
 }
