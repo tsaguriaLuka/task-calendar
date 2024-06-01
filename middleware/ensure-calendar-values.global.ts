@@ -2,7 +2,6 @@ import { format } from 'date-fns';
 
 
 export default defineNuxtRouteMiddleware((to) => {
-
   if (!to.path.includes('/calendar')) {
     return;
   }
