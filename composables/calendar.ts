@@ -8,12 +8,12 @@ import {
   startOfDay,
   startOfMonth,
   startOfWeek,
-} from 'date-fns';
+} from 'date-fns'
 
 export function useCalendar() {
   const route = useRoute()
 
-  const curType = computed(() => route.params.type as 'day' | 'month' | 'week')
+  const currentViewType = computed(() => route.params.type as 'day' | 'month' | 'week')
   const year = computed(() => Number(route.params.year))
   const month = computed(() => Number(route.params.month))
   const day = computed(() => Number(route.params.day))
@@ -33,36 +33,36 @@ export function useCalendar() {
   })
 
   const dayHours = computed(() => {
-    const start = startOfDay(new Date(year.value, month.value - 1, day.value));
-    const end = endOfDay(new Date(year.value, month.value - 1, day.value));
+    const start = startOfDay(new Date(year.value, month.value - 1, day.value))
+    const end = endOfDay(new Date(year.value, month.value - 1, day.value))
 
-    return eachHourOfInterval({ start, end} ).map(hour => format(hour, 'h a'));
-  });
+    return eachHourOfInterval({ start, end} ).map(hour => format(hour, 'h a'))
+  })
 
   const curMonthName = computed(() => {
-    return format(new Date(year.value, month.value - 1), 'MMMM');
-  });
+    return format(new Date(year.value, month.value - 1), 'MMMM')
+  })
 
   const dateLabel = computed(() => {
-    if (curType.value === 'day') {
-      return `${ curMonthName.value } ${ day.value }, ${ year.value }`;
+    if (currentViewType.value === 'day') {
+      return `${ curMonthName.value } ${ day.value }, ${ year.value }`
     }
 
-    const firstDayOfWeek = weekDays.value[0];
-    const lastDayOfWeek = weekDays.value[weekDays.value.length - 1];
+    const firstDayOfWeek = weekDays.value[0]
+    const lastDayOfWeek = weekDays.value[weekDays.value.length - 1]
 
     if (
-      curType.value === 'week' &&
+      currentViewType.value === 'week' &&
       (firstDayOfWeek?.getMonth() !== lastDayOfWeek?.getMonth())
     ) {
-      return `${ format(firstDayOfWeek, 'MMMM') } - ${ format(lastDayOfWeek, 'MMMM') }, ${ year.value }`;
+      return `${ format(firstDayOfWeek, 'MMMM') } - ${ format(lastDayOfWeek, 'MMMM') }, ${ year.value }`
     }
 
-    return `${ curMonthName.value }, ${ year.value }`;
-  });
+    return `${ curMonthName.value }, ${ year.value }`
+  })
 
   return {
-    curType,
+    currentViewType,
     monthDays,
     weekDays,
     dayHours,

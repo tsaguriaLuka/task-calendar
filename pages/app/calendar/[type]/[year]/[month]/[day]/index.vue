@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { format, parse } from "date-fns";
-import { useEventsStore } from "~/stores/events";
-import { storeToRefs } from "pinia";
-import { setTargetEl } from "~/composables/mouse-move";
-import { useCalendar } from "~/composables/calendar";
+import { format, parse } from "date-fns"
+import { useEventsStore } from "~/stores/events"
+import { storeToRefs } from "pinia"
+import { setTargetEl } from "~/composables/mouse-move"
+import { useCalendar } from "~/composables/calendar"
 
-const pageTitle = useState('page-title');
-const targetContainer = ref<HTMLElement | null>(null);
+const pageTitle = useState('page-title')
+const targetContainer = ref<HTMLElement | null>(null)
 
 onMounted(() => {
-  pageTitle.value = 'My App';
-  if (targetContainer.value) setTargetEl(targetContainer.value);
-});
+  pageTitle.value = 'My App'
+  if (targetContainer.value) setTargetEl(targetContainer.value)
+})
 
-await useEventsStore().fetchEvents();
+await useEventsStore().fetchEvents()
 
 const {
-  curType,
+  currentViewType,
   monthDays,
   weekDays,
   dayHours,
@@ -27,36 +27,36 @@ const {
   dateLabel,
 } = useCalendar()
 
-const eventModal = ref(false);
-const { eventFormData } = storeToRefs(useEventsStore());
+const eventModal = ref(false)
+const { eventFormData } = storeToRefs(useEventsStore())
 
-const date = ref(format(new Date(), 'yyyy-MM-dd'));
-const startMinutesDate = ref<string>();
-const endMinutesDate = ref<string>();
+const date = ref(format(new Date(), 'yyyy-MM-dd'))
+const startMinutesDate = ref<string>()
+const endMinutesDate = ref<string>()
 
 const createEventModal = () => {
-  const now = new Date();
-  startMinutesDate.value = format(now, 'HH:mm');
-  endMinutesDate.value = format(new Date(now.getTime() + 15 * 60 * 1000), 'HH:mm');
-  eventModal.value = true;
-};
+  const now = new Date()
+  startMinutesDate.value = format(now, 'HH:mm')
+  endMinutesDate.value = format(new Date(now.getTime() + 15 * 60 * 1000), 'HH:mm')
+  eventModal.value = true
+}
 
 const submitEventCreate = async () => {
-  if (!date.value || !startMinutesDate.value || !endMinutesDate.value) return;
+  if (!date.value || !startMinutesDate.value || !endMinutesDate.value) return
 
   const parseDateTime = (date: string, time: string) =>
-      parse(`${ date }T${ time }`, 'yyyy-MM-dd\'T\'HH:mm', new Date()).getTime();
+      parse(`${ date }T${ time }`, 'yyyy-MM-dd\'T\'HH:mm', new Date()).getTime()
 
   Object.assign(eventFormData.value, {
     startTimestamp: parseDateTime(date.value, startMinutesDate.value),
     endTimestamp: parseDateTime(date.value, endMinutesDate.value)
-  });
+  })
 
 
-  await useEventsStore().createEvent();
+  await useEventsStore().createEvent()
 
   eventModal.value = false
-};
+}
 </script>
 
 
@@ -128,7 +128,7 @@ const submitEventCreate = async () => {
 
     <VCalendarHeader
       :cur-month-name="curMonthName"
-      :cur-type="curType"
+      :current-view-type="currentViewType"
       :date-label="dateLabel"
       :month
       :day
@@ -138,14 +138,14 @@ const submitEventCreate = async () => {
 
     <VCard
       :style="{
-        '--card-height': curType === 'month' ? '78vh' : '72vh',
-        '--events-height': curType === 'month' ? 'fit-content' : '1440px'
+        '--card-height': currentViewType === 'month' ? '78vh' : '72vh',
+        '--events-height': currentViewType === 'month' ? 'fit-content' : '1440px'
       }"
     >
       <div class="calendar-wrapper">
         <div
           class="calendar-days"
-          v-if="curType === 'week'"
+          v-if="currentViewType === 'week'"
         >
           <div
             v-for="day in weekDays"
@@ -160,19 +160,19 @@ const submitEventCreate = async () => {
         >
           <VCalendarEvents
             :dayHours="dayHours"
-            :cur-type="curType"
+            :current-view-type="currentViewType"
           >
             <VCalendarDayView
-              v-if="curType === 'day'"
+              v-if="currentViewType === 'day'"
             />
 
             <VCalendarWeekView
-              v-if="curType === 'week'"
+              v-if="currentViewType === 'week'"
               :week-days="weekDays"
             />
 
             <VCalendarMonthView
-              v-if="curType === 'month'"
+              v-if="currentViewType === 'month'"
               :month-days="monthDays"
             />
           </VCalendarEvents>

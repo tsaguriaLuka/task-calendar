@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useEventsStore } from "~/stores/events";
-import { storeToRefs } from "pinia";
-import { format, parse } from "date-fns";
+import { useEventsStore } from "~/stores/events"
+import { storeToRefs } from "pinia"
+import { format, parse } from "date-fns"
 
 const props = withDefaults(defineProps<{
   event: {
@@ -16,49 +16,49 @@ const props = withDefaults(defineProps<{
 }>(), {
   height: 20,
   top: null
-});
+})
 
-const isEventModalVisible = ref(false);
-const { eventFormData, eventResponse } = storeToRefs(useEventsStore());
+const isEventModalVisible = ref(false)
+const { eventFormData, eventResponse } = storeToRefs(useEventsStore())
 
-const selectedDate = ref(format(new Date(), 'yyyy-MM-dd'));
-const startTime = ref<string>();
-const endTime = ref<string>();
+const selectedDate = ref(format(new Date(), 'yyyy-MM-dd'))
+const startTime = ref<string>()
+const endTime = ref<string>()
 
 const openEventInfo = async () => {
-  const eventsStore = useEventsStore();
-  await eventsStore.fetchEventById(props.event.id);
+  const eventsStore = useEventsStore()
+  await eventsStore.fetchEventById(props.event.id)
 
-  if (!eventResponse.value) return;
+  if (!eventResponse.value) return
 
-  const { title, description, startTimestamp, endTimestamp } = eventResponse.value;
-  Object.assign(eventFormData.value, { title, description });
+  const { title, description, startTimestamp, endTimestamp } = eventResponse.value
+  Object.assign(eventFormData.value, { title, description })
 
-  selectedDate.value = format(new Date(startTimestamp), 'yyyy-MM-dd');
-  startTime.value = format(new Date(startTimestamp), 'HH:mm');
-  endTime.value = format(new Date(endTimestamp), 'HH:mm');
+  selectedDate.value = format(new Date(startTimestamp), 'yyyy-MM-dd')
+  startTime.value = format(new Date(startTimestamp), 'HH:mm')
+  endTime.value = format(new Date(endTimestamp), 'HH:mm')
 
-  isEventModalVisible.value = true;
-};
+  isEventModalVisible.value = true
+}
 
 const updateEventInfo = async () => {
-  if (!selectedDate.value || !startTime.value || !endTime.value) return;
+  if (!selectedDate.value || !startTime.value || !endTime.value) return
 
   const parseDateTime = (date: string, time: string) =>
-      parse(`${date}T${time}`, 'yyyy-MM-dd\'T\'HH:mm', new Date()).getTime();
+      parse(`${date}T${time}`, 'yyyy-MM-dd\'T\'HH:mm', new Date()).getTime()
 
   Object.assign(eventFormData.value, {
     startTimestamp: parseDateTime(selectedDate.value, startTime.value),
     endTimestamp: parseDateTime(selectedDate.value, endTime.value)
-  });
+  })
 
   await useEventsStore().updateEvent({
     id: props.event.id,
     ...eventFormData.value
-  });
+  })
 
-  isEventModalVisible.value = false;
-};
+  isEventModalVisible.value = false
+}
 </script>
 
 <template>

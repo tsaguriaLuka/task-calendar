@@ -1,10 +1,10 @@
 <script setup lang="ts">
 withDefaults(defineProps<{
   dayHours: String[],
-  curType: string
+  currentViewType: string
 }>(), {
   dayHours: () => [],
-  curType: 'day'
+  currentViewType: 'day'
 });
 </script>
 
@@ -13,7 +13,7 @@ withDefaults(defineProps<{
      <div class="calendar-events-hours">
        <div
          class="calendar-events-hour"
-         v-if="curType !== 'month'"
+         v-if="currentViewType !== 'month'"
          v-for="(hour, index) in dayHours"
          :key="index"
        >

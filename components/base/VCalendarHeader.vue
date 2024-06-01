@@ -7,7 +7,7 @@ import {
 } from 'date-fns';
 
 export interface VDateNavigationProps {
-  curType: 'day' | 'week' | 'month'
+  currentViewType: 'day' | 'week' | 'month'
   dateLabel: string | null,
   curMonthName: string
   year: number
@@ -16,7 +16,7 @@ export interface VDateNavigationProps {
 }
 
 const props = withDefaults(defineProps<VDateNavigationProps>(), {
-  curType: 'day',
+  currentViewType: 'day',
   dateLabel: null,
   curMonthName: undefined,
   year: 2024,
@@ -35,12 +35,12 @@ const changeDate = async (type: 'day' | 'week' | 'month', amount: number) => {
 
   if (!targetDate.value) return
 
-  await useRouter().push(getUrl(props.curType, targetDate.value))
+  await useRouter().push(getUrl(props.currentViewType, targetDate.value))
 };
 
-const curTypeLocal = ref<string>(props.curType)
+const currentViewTypeLocal = ref<string>(props.currentViewType)
 
-watch(curTypeLocal, async (value) => {
+watch(currentViewTypeLocal, async (value) => {
   await useRouter().push(getUrl(value, currentDate.value))
 })
 
@@ -67,7 +67,7 @@ const getUrl = (value: string, date: Date) => {
     <div class="date-navigator__controls">
       <VIconBox
         size="small"
-        @click="changeDate(curType, -1)"
+        @click="changeDate(currentViewType, -1)"
       >
          <VIcon
            icon="lucide:chevron-left"
@@ -75,7 +75,7 @@ const getUrl = (value: string, date: Date) => {
       </VIconBox>
 
       <VField>
-        <VSelect v-model="curTypeLocal">
+        <VSelect v-model="currentViewTypeLocal">
           <template v-slot>
             <option value="day">Day</option>
 
@@ -88,7 +88,7 @@ const getUrl = (value: string, date: Date) => {
 
       <VIconBox
         size="small"
-        @click="changeDate(curType, 1)"
+        @click="changeDate(currentViewType, 1)"
       >
        <VIcon
          icon="lucide:chevron-right"
