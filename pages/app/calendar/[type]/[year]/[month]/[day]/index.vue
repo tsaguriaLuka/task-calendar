@@ -9,7 +9,8 @@ const pageTitle = useState('page-title')
 const targetContainer = ref<HTMLElement | null>(null)
 
 onMounted(() => {
-  pageTitle.value = 'My App'
+  pageTitle.value = 'Calendar'
+
   if (targetContainer.value) setTargetEl(targetContainer.value)
 })
 

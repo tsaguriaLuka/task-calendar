@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { format}  from "date-fns";
+
 import type { SideblockItem } from '~/components/layouts/sideblock/sideblock.types'
+
 
 const links = ref<SideblockItem[]>([
   {
@@ -12,7 +15,7 @@ const links = ref<SideblockItem[]>([
     type: 'link',
     label: 'Calendar',
     icon: 'lucide:calendar-days',
-    to: '/app/calendar'
+    to: `/app/calendar/day/${ format(Date.now(), 'yyyy/MM/dd') }`
   }
 ])
 </script>
