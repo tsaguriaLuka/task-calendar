@@ -1,4 +1,4 @@
-import { addMinutes } from "date-fns";
+import { setMinutes } from "date-fns";
 import { useEventsStore } from "~/stores/events";
 
 interface IEvent {
@@ -22,10 +22,10 @@ export const useOnDrop = async ($event: DragEvent, day: string | number | Date, 
 
   const event = JSON.parse($event.dataTransfer.getData('event'));
 
-  const newEventStart = addMinutes(new Date(day), mins).getTime();
+  const newEventStart = setMinutes(new Date(day), mins).getTime();
 
-  event.eventStart = newEventStart
   event.eventEnd = newEventStart + (event.eventEnd - event.eventStart)
+  event.eventStart = newEventStart
 
   await useEventsStore().updateEvent(event)
 }
