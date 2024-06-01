@@ -189,13 +189,29 @@ const submitEventCreate = async () => {
     overflow: scroll;
   }
 
+  &-wrapper {
+    width: 100%;
+    min-width: 600px;
+  }
+
   &-days {
     display: flex;
     justify-content: space-between;
-    margin: 0 80px;
     position: sticky;
     top: 0;
     z-index: 99;
+    width: calc(100% - 60px);
+    min-width: 540px;
+    margin-left: auto;
+
+    > * {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  &-container {
+    min-width: 100%;
   }
 }
 </style>

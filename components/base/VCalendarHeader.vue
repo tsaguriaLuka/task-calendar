@@ -100,10 +100,16 @@ const getUrl = (value: string, date: Date) => {
 
 <style scoped lang="scss">
 .date-navigator {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto;
   align-items: center;
+  gap: 12px;
   margin-bottom: 0.75rem;
+
+  > :last-child {
+    justify-content: flex-end;
+  }
 
   .field,
   label {
@@ -114,6 +120,15 @@ const getUrl = (value: string, date: Date) => {
     display: flex;
     align-items: center;
     gap: 12px;
+  }
+
+  @media screen and (max-width: 720px) {
+    grid-template-columns: repeat(2, 1fr);
+
+    > :last-child {
+      justify-content: flex-end;
+      grid-column: 1 / 3;
+    }
   }
 }
 </style>
