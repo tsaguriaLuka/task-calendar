@@ -3,7 +3,5 @@ export interface IEvent {
   eventStart: string;
   eventEnd: string;
   description: string;
-  minutesStart: number;
-  duration: number;
   id: string;
 }

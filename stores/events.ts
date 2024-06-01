@@ -17,6 +17,7 @@ type EventsByDate = {
 
 export const useEventsStore = defineStore('events', () => {
   const eventsResponse = ref<IEvent[]>([])
+  const eventResponse = ref<IEvent>()
 
   const eventFormData = ref({
     title: '',
@@ -25,12 +26,22 @@ export const useEventsStore = defineStore('events', () => {
     eventEnd: 0
   })
 
-  const fetchedEvents = async () => {
+  const fetchEvents = async () => {
     const { data, error } = await tryCatch($fetch('/api/events'))
 
     if (error) console.error('Error')
 
     if (data) eventsResponse.value = data
+  }
+
+  const fetchEventById = async (id: string) => {
+    const { data, error } = await tryCatch($fetch('/api/events/byId', {
+      query: { id }
+    }))
+
+    if (error) console.error('Error')
+
+    if (data) eventResponse.value = data
   }
 
   const createEvent = async () => {
@@ -44,7 +55,7 @@ export const useEventsStore = defineStore('events', () => {
       }
     }))
 
-    await fetchedEvents()
+    await fetchEvents()
   }
 
   const updateEvent = async (payload: IEvent) => {
@@ -61,7 +72,7 @@ export const useEventsStore = defineStore('events', () => {
       }
     }))
 
-    await fetchedEvents()
+    await fetchEvents()
   }
 
   const dayEvents = computed(() => {
@@ -122,10 +133,12 @@ export const useEventsStore = defineStore('events', () => {
 
   return {
     eventsResponse,
+    eventResponse,
     eventFormData,
     dayEvents,
     weekEvents,
-    fetchedEvents,
+    fetchEvents,
+    fetchEventById,
     createEvent,
     updateEvent
   }

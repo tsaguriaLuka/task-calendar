@@ -14,7 +14,7 @@ onMounted(() => {
   if (targetContainer.value) setTargetEl(targetContainer.value)
 })
 
-await useEventsStore().fetchedEvents()
+await useEventsStore().fetchEvents()
 
 const {
   curType,
