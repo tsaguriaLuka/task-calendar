@@ -2,11 +2,16 @@
 import { format, parse } from "date-fns";
 import { useEventsStore } from "~/stores/events";
 import { storeToRefs } from "pinia";
+import { setTargetEl } from "~/composables/mouse-move";
 
 const pageTitle = useState('page-title')
 
+const targetContainer = ref<HTMLElement | null>(null)
+
 onMounted(() => {
   pageTitle.value = 'My App'
+
+  if (targetContainer.value) setTargetEl(targetContainer.value)
 })
 
 await useEventsStore().fetchedEvents()
@@ -70,6 +75,7 @@ const submitEventCreate = async () => {
     <VModal
       :open="createEventForm"
       @close="createEventForm = false"
+      title="Create Event"
     >
       <template #content>
         <VField>
@@ -160,6 +166,7 @@ const submitEventCreate = async () => {
 
         <div
           class="calendar-container"
+          ref="targetContainer"
         >
           <VCalendarEvents
             :dayHours="dayHours"

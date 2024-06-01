@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { format } from "date-fns";
-import { useEvents } from "~/composables/useEvents";
+import {storeToRefs} from "pinia";
+import {useEventsStore} from "~/stores/events";
 
 withDefaults(defineProps<{ monthDays: [] }>(), {
   monthDays: () => []
 });
 
-const events = useEvents().weekEvents();
+const { weekEvents } = storeToRefs(useEventsStore())
 </script>
 
 <template>
@@ -20,7 +21,7 @@ const events = useEvents().weekEvents();
 
       <div class="calendar__months-events">
         <VCalendarEvent
-          v-for="event in events[format(day, 'yyyy/MM/dd')]"
+          v-for="event in weekEvents[format(day, 'yyyy/MM/dd')]"
           :event="event"
           :key="event.id"
         />

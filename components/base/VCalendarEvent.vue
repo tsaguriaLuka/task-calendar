@@ -1,12 +1,13 @@
 <script setup lang="ts">
 withDefaults(defineProps<{
   event: {
-    title: string,
-    description: string,
-    eventStart: number,
+    title: string
+    description: string
+    eventStart: number
     eventEnd: number
-  } | null,
-  height?: number,
+    id: number
+  } | null
+  height?: number
   top?: number | null
 }>(), {
   event: null,

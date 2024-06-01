@@ -7,7 +7,6 @@ import {
 } from 'date-fns';
 
 export interface VDateNavigationProps {
-  justify: 'flex-start' | 'flex-end'
   curType: 'day' | 'week' | 'month'
   dateLabel: string | null,
   curMonthName: string
@@ -17,7 +16,6 @@ export interface VDateNavigationProps {
 }
 
 const props = withDefaults(defineProps<VDateNavigationProps>(), {
-  justify: 'flex-end',
   curType: 'day',
   dateLabel: null,
   curMonthName: undefined,
@@ -57,8 +55,6 @@ const getUrl = (value: string, date: Date) => {
       <VLabel>
         {{ dateLabel }}
       </VLabel>
-      <div class="date-navigator__label">
-      </div>
     </VField>
 
     <VButton
@@ -82,7 +78,9 @@ const getUrl = (value: string, date: Date) => {
         <VSelect v-model="curTypeLocal">
           <template v-slot>
             <option value="day">Day</option>
+
             <option value="week">Week</option>
+
             <option value="month">Month</option>
           </template>
         </VSelect>

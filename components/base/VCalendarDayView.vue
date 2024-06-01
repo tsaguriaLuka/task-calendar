@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { useEvents } from '~/composables/useEvents';
+import { storeToRefs } from "pinia";
+import { useEventsStore } from "~/stores/events";
 
-const events = useEvents().dayEvents;
+const { dayEvents } = storeToRefs(useEventsStore())
 </script>
 
 <template>
   <div class="calendar__day">
     <VCalendarEvent
-      v-for="event in events"
+      v-for="event in dayEvents"
       :key="event.id"
       :event="event"
       :top="event.minutesStart"
